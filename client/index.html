@@ -29,8 +29,32 @@
 
       <div id="send">
         <h3>Input message</h3>
-        <input type="textarea" name="message" id="message" rows="3" cols="10"></input>
+
+        <table>
+          <tr>
+            <td><label>Username</label>
+            </td>
+            <td><input name="username" id="username"></input>
+            </td>
+          </tr>
+          <tr>
+            <td><label>Message</label>
+            </td>
+            <td><textarea name="message" id="message" rows="3"></textarea>
+            </td>
+          </tr>          
+          <tr>
+            <td><label>Room name</label>
+            </td>
+            <td><input name="new-room" id="new-room" value="Lobby"></input>
+            </td>
+          </tr> 
+        </table>
+
+
+        
         <button class="submit">Submit</button>
+
       </div>
 
       <div id="friends">Friends</div>
@@ -39,11 +63,12 @@
         <h2>NavBar</h2>
         <div id="rooms">Rooms</div>
         <select id="roomSelect">
+          <option>All rooms</option>
 
         </select>
 
         <button id="clearChats">Clear chats</button>
-
+        <button id="refresh">Refresh</button>
       </div>
 
 

@@ -31,25 +31,29 @@ var app = {
     });
   },
 
-  fetch: function() {
+  fetch: function(roomname) {
 
     $.ajax({
       // This is the url you should use to communicate with the parse API server.
       url: this.server,
       type: 'GET',
       dataType: 'json',
-      data: 'order=-createdAt',
+      data: {'order': '-createdAt', 'limit': 1000},
       contentType: 'json',
-      urlencode: 'limit=1000',
 
       success: function (data, status) {
         console.log('chatterbox: fetch success');
         console.log(data, status);
         var chats = data.results;
+
         for (var i = 0; i < chats.length; i++) {
 
           //render all messages
-          app.renderMessage(chats[i]);
+          if (!roomname || roomname === 'All rooms') {
+            app.renderMessage(chats[i]);
+          } else if (roomname === chats[i].roomname) {
+            app.renderMessage(chats[i]);
+          }
 
           //check if the room exists and if not, add to rooms object and call render rooms
           if (!app.rooms[chats[i].roomname]) {
@@ -67,27 +71,6 @@ var app = {
 
     });
 
-  },
-
-  fetch2: function() {
-    console.log('run fetch');
-    $.get(this.server, function(data, status) {
-
-      console.log(data, status);
-      var chats = data.results;
-      for (var i = 0; i < chats.length; i++) {
-
-        //render all messages
-        app.renderMessage(chats[i]);
-
-        //check if the room exists and if not, add to rooms object and call render rooms
-        if (!app.rooms[chats[i].roomname]) {
-          app.renderRoom(chats[i].roomname);
-          app.rooms[chats[i].roomname] = chats[i].roomname;
-        }
-
-      }
-    });
   },
 
   clearMessages: function() {
@@ -116,11 +99,14 @@ var app = {
 
   //this renders a single room
   renderRoom: function(room) {
-    var $roomSelect = $('#roomSelect');
-    var $newRoom = $('<option></option>');
-    $newRoom.attr('value', room);
-    $newRoom.text(room);
-    $roomSelect.append($newRoom);
+
+    if (room) {
+      var $roomSelect = $('#roomSelect');
+      var $newRoom = $('<option></option>');
+      $newRoom.attr('value', room);
+      $newRoom.text(room);
+      $roomSelect.append($newRoom);
+    }
   },
 
   handleUsernameClick: function() {
@@ -134,7 +120,7 @@ var app = {
     var message = {
       username: getUrlParameter('username'),
       text: $('#message').val(),
-      roomname: $('#roomSelect').val(),
+      roomname: $('#new-room').val(),
     };
 
     console.log(message);
@@ -142,14 +128,6 @@ var app = {
 
   }
 
-
-  // var message = {
-  //   username: 'shawndrost',
-  //   text: 'trololo',
-  //   roomname: '4chan'
-  // };
-
-  
 }; // end app
 
 
@@ -185,6 +163,17 @@ $(document).on('ready', function() {
 
   $('#chats').on('click', '.username', function() {
     app.handleUsernameClick();
+  });
+
+  $('#refresh').on('click', function() {
+    app.fetch();
+    app.init();
+  });
+
+  $('#roomSelect').on('change', function() {
+    app.clearMessages();
+    app.fetch($(this).val());
+    ($('#roomSelect').val() === 'All rooms') ? $('#new-room').val('Lobby') : $('#new-room').val($('#roomSelect').val());
   });
 
 });
