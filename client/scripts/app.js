@@ -2,7 +2,7 @@
 
 var app = {
 
-  server: 'http://parse.sfm6.hackreactor.com/chatterbox/classes/messages',
+  server: 'http://parse.sfm8.hackreactor.com/chatterbox/classes/messages',
   friends: {},
   rooms: {},
 
@@ -61,7 +61,8 @@ var app = {
             app.rooms[chats[i].roomname] = chats[i].roomname;
           }
 
-        }        
+        }
+        app.renderFriends();       
       },
 
       error: function (data) {
@@ -80,27 +81,51 @@ var app = {
   renderMessage: function(message) {
     var $chatDiv = $('#chats');
     var $newChat = $('<div></div>');
-    $newChat.text('[' + message.roomname + '] ' + message.username + ': ' + message.text);
+    if (message.text && message.text.includes('<script>')) {
+
+      $newChat.text('DANGER!!!!!!!!!!!! Message deleted');
+      console.log('script found');
+      $chatDiv.append($newChat);
+    } else if (message.text && message.username) {
+      $newChat.text('[' + message.roomname + '] ' + message.username + ': ' + message.text);
+
     $newChat.addClass('chat');
     $newChat.addClass('messages');
     $newChat.addClass('username');
     $newChat.attr('user', message.username);
     $chatDiv.append($newChat);
+    }
+  },
+
+  clearFriends: function() {
+    $('#friends').empty();
   },
 
   addFriend: function(friend) {
     app.friends[friend] = friend;
-    //split the following into a renderFriends function???
-    var $friendsDiv = $('#friends');
-    var $newFriend = $('<div></div>');
-    $newFriend.text(friend);
-    $friendsDiv.append($newFriend);
+    app.renderFriends();
+  },
+
+
+  renderFriends: function() {
+    app.clearFriends();
+    for (var friend in app.friends) {
+      var $newFriendP = $('<p></p>');
+      $newFriendP.text(friend);
+      $('#friends').append($newFriendP)
+      console.log(friend);
+    }
+    for (var friend in app.friends) {
+      $(`.chat[user="${friend}"]`).css('font-weight', '900');
+      $(`.chat[user="${friend}"]`).addClass('friend');
+      console.log(friend);
+    }
   },
 
   //this renders a single room
   renderRoom: function(room) {
 
-    if (room) {
+    if (room  && !room.includes('<script>')) {
       var $roomSelect = $('#roomSelect');
       var $newRoom = $('<option></option>');
       $newRoom.attr('value', room);
@@ -109,16 +134,15 @@ var app = {
     }
   },
 
-  handleUsernameClick: function() {
-    console.log('** handleUsernameClick **');
-    var friend = $(this).attr('user');
+  handleUsernameClick: function(friend) {
+    console.log(friend);
     app.addFriend(friend);
   },
 
   handleSubmit: function() {
     console.log('handleSubmit runs');
     var message = {
-      username: getUrlParameter('username'),
+      username: $('#username').val(),
       text: $('#message').val(),
       roomname: $('#new-room').val(),
     };
@@ -151,6 +175,8 @@ $(document).on('ready', function() {
   app.init();
   app.fetch();
 
+  $('#username').val(getUrlParameter('username'));
+
   $('#send .submit').on('click', function() {
     app.handleSubmit();
   });
@@ -162,18 +188,31 @@ $(document).on('ready', function() {
   });
 
   $('#chats').on('click', '.username', function() {
-    app.handleUsernameClick();
+    app.handleUsernameClick($(this).attr('user'));
   });
 
   $('#refresh').on('click', function() {
-    app.fetch();
-    app.init();
+    app.clearMessages();
+    app.fetch($('#roomSelect').val());
+    // setTimeout(function() {
+    //   app.renderFriends();
+    // }, 500);
+
   });
 
   $('#roomSelect').on('change', function() {
     app.clearMessages();
     app.fetch($(this).val());
     ($('#roomSelect').val() === 'All rooms') ? $('#new-room').val('Lobby') : $('#new-room').val($('#roomSelect').val());
+    // setTimeout(function() {
+    //   app.renderFriends();
+    // }, 500);
+  });
+
+  $('#submitchangeMessages').on('click', function() {
+    prependAll($('#prependAll').val());
+    // app.clearMessages();
+    // app.fetch($('#roomSelect').val());    
   });
 
 });
