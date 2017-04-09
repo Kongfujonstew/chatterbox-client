@@ -2,7 +2,7 @@
 
 var app = {
 
-  server: 'http://parse.sfm8.hackreactor.com/chatterbox/classes/messages',
+  server: 'http://parse.sfm6.hackreactor.com/chatterbox/classes/messages',
   friends: {},
   rooms: {},
 
@@ -88,17 +88,24 @@ var app = {
       $chatDiv.append($newChat);
     } else if (message.text && message.username) {
       $newChat.text('[' + message.roomname + '] ' + message.username + ': ' + message.text);
-
-    $newChat.addClass('chat');
-    $newChat.addClass('messages');
-    $newChat.addClass('username');
-    $newChat.attr('user', message.username);
-    $chatDiv.append($newChat);
+      $newDelete = $('<div class="deleteMe">Delete User</div>');
+      $newDelete.attr('user', message.username);
+      $newChat.addClass('chat');
+      $newChat.addClass('messages');
+      $newChat.addClass('username');
+      $newChat.attr('user', message.username);
+      $chatDiv.append($newChat);
+      // $chatDiv.append($newDelete);
     }
   },
 
   clearFriends: function() {
     $('#friends').empty();
+  },
+
+  clearRooms: function() {
+    $('#roomSelect').empty();
+    $('#roomSelect').append('<option>All rooms</option>');
   },
 
   addFriend: function(friend) {
@@ -112,7 +119,7 @@ var app = {
     for (var friend in app.friends) {
       var $newFriendP = $('<p></p>');
       $newFriendP.text(friend);
-      $('#friends').append($newFriendP)
+      $('#friends').append($newFriendP);
       console.log(friend);
     }
     for (var friend in app.friends) {
@@ -214,6 +221,35 @@ $(document).on('ready', function() {
     // app.clearMessages();
     // app.fetch($('#roomSelect').val());    
   });
+
+  $('.deleteMe').on('click', function() {
+    console.log('clicked');
+    var user = $(this).attr('user');
+    deleteUser(user);
+
+  });
+
+  $('#selectFloor').on('change', function() {
+
+    if (+$('#selectFloor').val() === 6) {
+      console.log('** CHANGE TO 6 **');
+      setFilter6();
+      URL = URL6;
+      app.server = URL6;
+    } else {
+      console.log('** CHANGE TO 8 **'); 
+      setFilter8();
+      URL = URL8;
+      app.server = URL8;
+    }  
+
+    console.log(app.rooms);
+
+    app.rooms = {};
+    app.clearRooms();
+    app.clearMessages();
+    app.fetch($('#roomSelect').val());
+  });  
 
 });
 
