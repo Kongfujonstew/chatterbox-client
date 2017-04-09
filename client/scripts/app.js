@@ -95,7 +95,7 @@ var app = {
       $newChat.addClass('username');
       $newChat.attr('user', message.username);
       $chatDiv.append($newChat);
-      // $chatDiv.append($newDelete);
+      $chatDiv.append($newDelete);
     }
   },
 
@@ -222,7 +222,7 @@ $(document).on('ready', function() {
     // app.fetch($('#roomSelect').val());    
   });
 
-  $('.deleteMe').on('click', function() {
+  $('#chats').on('click', '.deleteMe', function() {
     console.log('clicked');
     var user = $(this).attr('user');
     deleteUser(user);

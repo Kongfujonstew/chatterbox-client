@@ -100,7 +100,7 @@ var deleteUser = function(user) {
     messages.forEach(msg => deleteMessage(msg.objectId));
   }, 3000);
 
-}
+};
 
 var deleteRoom = function(room) {
   messages = [];
@@ -112,7 +112,7 @@ var deleteRoom = function(room) {
     messages.forEach(msg => deleteMessage(msg.objectId));
   }, 3000);
 
-}
+};
 
 
 var prependAll = function(string) {
